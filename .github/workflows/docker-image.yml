@@ -1,0 +1,29 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: |
+            docker build . --file Dockerfile --tag myapp:${{ github.sha }}
+            docker tag myapp:${{ github.sha }} kaveri03/myapp:${{ github.sha }}
+
+    - name: Docker Login
+      uses: docker/login-action@v3.6.0
+      with:
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        
+    - name: Push Docker image
+      run: docker push kaveri03/myapp:${{ github.sha }}
